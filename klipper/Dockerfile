@@ -102,7 +102,9 @@ ENV LANGUAGE en_GB:en
 
 ARG USER=klippy
 ARG HOME=/home/${USER}
-ENV CONFIG_DIR=${HOME}/.config
+ENV MOONRAKER_CONFIG_PATH=${HOME}/printer_data/config
+ENV GCODE_FILES_PATH=${HOME}/printer_data/gcodes
+ENV MOONRAKER_DATA_PATH=${HOME}/printer_data/database
 ENV KLIPPER_VENV_DIR=${HOME}/klippy-env
 ENV MOONRAKER_VENV_DIR=${HOME}/moonraker-env
 
@@ -131,10 +133,10 @@ RUN pip install --no-index -f ${WHEELS} supervisord-dependent-startup gpiod nump
 USER ${USER}
 WORKDIR ${HOME}
 
-RUN mkdir -p ${HOME}/gcode_files ${CONFIG_DIR} ${HOME}/.moonraker ${HOME}/.moonraker_database ${HOME}/.klipper_repo_backup ${HOME}/.moonraker_repo_backup
+RUN mkdir -p ${GCODE_FILES_PATH} ${MOONRAKER_CONFIG_PATH} ${HOME}/.moonraker ${MOONRAKER_DATA_PATH} ${HOME}/.klipper_repo_backup ${HOME}/.moonraker_repo_backup
 
-VOLUME ${HOME}/gcode_files
-VOLUME ${CONFIG_DIR}
+VOLUME ${GCODE_FILES_PATH}
+VOLUME ${MOONRAKER_CONFIG_PATH}
 
 EXPOSE 7125
 
@@ -146,7 +148,7 @@ COPY --chown=${USER}:${USER} --from=builder ${HOME}/klipper ${HOME}/klipper
 COPY --chown=${USER}:${USER} --from=builder ${KLIPPER_VENV_DIR} ${KLIPPER_VENV_DIR}
 COPY --chown=${USER}:${USER} --from=builder ${HOME}/moonraker ${HOME}/moonraker
 COPY --chown=${USER}:${USER} --from=builder ${MOONRAKER_VENV_DIR} ${MOONRAKER_VENV_DIR}
-COPY --chown=${USER}:${USER} config ${CONFIG_DIR}
+COPY --chown=${USER}:${USER} config ${MOONRAKER_CONFIG_PATH}
 COPY --chown=${USER}:${USER} klipper/run_in_venv /usr/local/bin/run_in_venv
 
 COPY klipper/supervisord.conf /etc/supervisord/conf.d/supervisord.conf
